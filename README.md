@@ -1,2 +1,3 @@
 # File-Explorer-with-Tkinter
 File explorer created by Imran Hasan on february 2021
+You can do many operations like cut,copy,paste,rename,delete and you can also create new folder and txt file...
