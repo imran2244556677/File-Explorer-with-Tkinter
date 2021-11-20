@@ -1,5 +1,5 @@
 from _tkinter import TclError
-from tkinter import Tk, Listbox, END, Menu, LEFT, RIGHT, Scrollbar, ttk, Button, Entry, Toplevel, Label, Frame
+from tkinter import Tk, Listbox, END, Menu, LEFT, RIGHT, ttk, Button, Entry, Toplevel, Label, Frame, PanedWindow
 import os
 import shutil
 from tkinter.messagebox import showerror, askyesno
@@ -181,6 +181,7 @@ def refresh(e=None):
 
                 elif os.path.isdir(pathVar(fName)):
                     fileList.insert('', END, values=[fName, time.ctime(os.path.getmtime(pathVar(fName))), 'File Directory', ''])
+
             except IndexError:
                 if os.path.isfile(pathVar(fName)):
                     if len(fName.split('.')) == 1:
@@ -190,6 +191,7 @@ def refresh(e=None):
 
                 elif os.path.isdir(pathVar(fName)):
                     fileList.insert('', END, values=[fName, time.ctime(os.path.getmtime(pathVar(fName))), 'File Directory', ''])
+        status_bar.configure(text=f"{len(os.listdir(openedFolder))} Items |")
 
         # fileList.delete(*fileList.get_children())
 
@@ -318,13 +320,18 @@ disks = [i for i in driveLetters if os.path.exists(i)]
 root = Tk()
 root.geometry("1350x600")
 root.title("File Explorer Developed By Imran")
+root.iconbitmap("icon/folder.ico")
+
+panedWindow = PanedWindow(root)
+panedWindow.pack(fill='both', expand=1)
 
 treeViewFrame = Frame(root)
 
-scrollY = Scrollbar(treeViewFrame, orient='vertical')
+scrollY = ttk.Scrollbar(treeViewFrame, orient='vertical')
 scrollY.pack(fill='y', side='right')
 
-upBtn = Button(treeViewFrame, text="^", bd=0, command=lambda: fileOpen('^'))
+# upBtn = Button(treeViewFrame, text="h", font='{Wingdings 3}', bd=0, command=lambda: fileOpen('^'))
+upBtn = Button(treeViewFrame, text="↑",font='{} 10' , bd=0, command=lambda: fileOpen('^'))
 upBtn.pack(anchor='nw')
 
 fileList = ttk.Treeview(treeViewFrame, yscrollcommand=scrollY.set, columns=["name", 'date modified', 'type', 'size'])
@@ -348,15 +355,21 @@ fileList.bind("<ButtonRelease-3>", rightClicked)
 fileList.bind("<Control-Shift-N>", newFolder)
 fileList.bind("<F5>", refresh)
 
-fileList.pack(fill='both', expand=1, side=RIGHT)
+fileList.pack(fill='both', expand=1, side='top')
 
 scrollY.configure(command=fileList.yview)
 
+p1 = PanedWindow(panedWindow, orient='vertical')
+
 directories = Listbox(root, font="{times new roman} 13", bd=5, relief="ridge")
-directories.pack(fill="y", expand=0, side=LEFT)
+# directories.pack(fill="y", expand=0, side=LEFT)
+p1.add(directories)
 for item in disks:
     directories.insert(END, item)
 directories.bind("<ButtonRelease-1>", openD)
+
+panedWindow.add(p1)
+panedWindow.add(treeViewFrame)
 
 rightClickMenu = Menu(root, tearoff=0)
 rightClickMenu.add_command(label="Open", command=fileOpen)
@@ -378,6 +391,9 @@ newMenu.add_command(label="Text Document", command=newTXTFile)
 rightClickMenu.add_cascade(label="New", menu=newMenu)
 rightClickMenu.add_command(label="Properties", command=show_properties)
 
-treeViewFrame.pack(fill="both", expand=1, side=RIGHT)
+# treeViewFrame.pack(fill="both", expand=1, side=RIGHT)
+
+status_bar = Label(treeViewFrame, text='0 Items |', anchor='w')
+status_bar.pack(fill='x', side='bottom')
 
 root.mainloop()
